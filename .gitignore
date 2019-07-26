@@ -91,9 +91,12 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+# Key File
+model/key.js
+
 
 ##############################################
-# Node.js gitignore template                 #
+# react-native gitignore template                 #
 ##############################################
 
 
