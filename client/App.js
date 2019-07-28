@@ -6,109 +6,66 @@
  * @flow
  */
 
-import React, {Fragment} from 'react';
+import React, { Component } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
-  StatusBar,
+  AppRegistry
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-const App = () => {
-  return (
-    <Fragment>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </Fragment>
-  );
-};
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    height: 400,
+    left: 0,
     right: 0,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
 });
 
-export default App;
+var markers = [
+    {
+        latitude: 37.5655288,
+        longitude: 126.9789198,
+        title: 'Foo Place',
+        subtitle: '1234 Foo Drive'
+    }
+];
+
+export default class GoogleMap extends Component {
+  render() {
+    return (
+        <View style={styles.container}>
+          <MapView
+              provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+              style={styles.map}
+              region={{
+                  // 서울특별시청 주소를 첫 region으로 세팅
+                latitude: 37.5655288,
+                longitude: 126.9789198,
+                latitudeDelta: 0.0115,
+                longitudeDelta: 0.0112,
+              }}
+              annotations={markers}
+          >
+          <MapView.Marker
+              coordinate={{
+                  latitude: 37.5655288,
+                  longitude: 126.9789198}}
+              title={"서울"}
+              description={"서울"}
+          />
+          </MapView>
+        </View>
+    );
+  }
+}
+
+AppRegistry.registerComponent('client', () => GoogleMap);
