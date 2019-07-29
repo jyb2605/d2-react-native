@@ -93,7 +93,7 @@ typings/
 
 # Key File
 model/key.js
-
+model/db_info.js
 
 ##############################################
 # react-native gitignore template                 #
