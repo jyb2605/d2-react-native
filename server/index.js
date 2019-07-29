@@ -2,18 +2,11 @@
 const fastify = require('fastify')({ logger: true })
 
 // Declare an API route
+fastify.register(require('./router/users'), { prefix: '/users'})
+
+
 fastify.get('/', async (request, reply) => {
   return { hello: 'world' }
-})
-
-// API route - "Inventory"
-fastify.get('/inventory', async (request, reply) => {
-  return {
-      hat: 5,
-      socks: 5,
-      shirt: 25,
-      pants: 40
-    }
 })
 
 // Run the server!
