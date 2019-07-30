@@ -1,29 +1,7 @@
 const key = require('../model/key')
 const db_con = require('../model/db_con')()
 const request = require('request')
-// const multer = require('multer')
-//
-//
-// const storage = multer.diskStorage({
-//   destination(req, file, callback) {
-//     callback(null, 'uploads');
-//   },
-//   filename(req, file, callback) {
-//     let array = file.originalname.split('.');
-//     array[0] = array[0] + '_'; array[1] = '.' + array[1];
-//     array.splice(1, 0, Date.now().toString());
-//     const result = array.join('');
-//     console.log(result);
-//     callback(null, result);
-//   }
-// });
-//
-// const upload = multer({
-//   storage, limits: { files: 10, fileSize: 1024 * 1024 * 1024, }
-// });
-
-
-
+const multer = require('multer')
 
 async function routes (fastify, options) {
 
@@ -77,7 +55,7 @@ async function routes (fastify, options) {
         res.header('content-type', 'application/json').code(300).send(result)
       }
     })// end request
-  })// end /register
+    })// end /register
 
   fastify.put('/:trip_no', async (req, res) =>  {
     var authorization = req.headers.authorization;
@@ -190,73 +168,6 @@ async function routes (fastify, options) {
       }
     })// end request
   })// end /
-
-  fastify.post('/image',  async (req, res) =>  {
-    var authorization = req.headers.authorization;
-    var result = new Object()
-
-    var tripNo = req.query.tripNo;
-
-    var check = {
-        url: "https://openapi.naver.com/v1/nid/verify",
-        headers: {'Authorization': 'Bearer ' + authorization }
-     };
-
-    request.get(check, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        body = JSON.parse(body)
-
-        if(body.resultcode == "00"){
-          // try {
-          //   const files = req.files;
-          //   let originalName = '';
-          //   let fileName = '';
-          //   let mimeType = '';
-          //   let size = 0;
-          //   if (Array.isArray(files)) {
-          //     console.log(`files is array~`);
-          //     originalName = files[0].originalname;
-          //     fileName = files[0].filename;
-          //     mimeType = files[0].mimetype;
-          //     size = files[0].size;
-          //   } else {
-          //     console.log(`files is not array~`);
-          //     originalName = files[0].originalname;
-          //     fileName = files[0].filename;
-          //     mimeType = files[0].mimetype;
-          //     size = files[0].size;
-          //   }
-          //
-          //   console.log(`file inform : ${originalName}, ${fileName}, ${mimeType}, ${size}`);
-          //   // res.writeHead('200', { 'Content-type': 'text/html;charset=utf8' });
-          //   // res.write('<h3>upload success</h3>');
-          //   // res.write(`<p>original name = ${originalName}, saved name = ${fileName}<p>`);
-          //   // res.write(`<p>mime type : ${mimeType}<p>`);
-          //   // res.write(`<p>file size : ${size}<p>`);
-          //   // res.end();
-          // } catch (err) {
-          //   console.dir(err.stack);
-          // }
-
-            
-
-
-        }// 토큰 유효
-        else{
-            result.code = 300
-            result.message = "토큰 인증 실패"
-
-            res.header('content-type', 'application/json').code(300).send(result)
-        }// 토큰 유효 X
-      } else {
-        result.code = 300
-        result.message = "토큰 인증 실패"
-
-        res.header('content-type', 'application/json').code(300).send(result)
-      }
-    })// end request
-  })// end /image
-
 
 }
 
