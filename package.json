@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "TestProject",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -8,16 +8,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@react-native-community/geolocation": "^1.4.2",
-    "haversine": "^1.1.1",
     "react": "16.8.6",
-    "react-native": "0.60.4",
-    "react-native-action-button": "^2.8.5",
-    "react-native-background-timer": "^2.1.1",
-    "react-native-floating-action": "^1.17.0",
-    "react-native-gesture-handler": "^1.3.0",
-    "react-native-maps": "0.25.0",
-    "react-navigation": "^3.11.1"
+    "react-native": "0.60.4"
   },
   "devDependencies": {
     "@babel/core": "7.5.5",
