@@ -92,8 +92,8 @@ typings/
 .dynamodb/
 
 # Key File
-model/key.js
-model/db_info.js
+server/model/key.js
+server/model/db_info.js
 
 ##############################################
 # react-native gitignore template                 #
