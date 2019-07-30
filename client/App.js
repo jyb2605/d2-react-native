@@ -1,123 +1,29 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-//
-// import React, { Component } from 'react';
-// import {
-//   StyleSheet,
-//   View,
-//   Text,
-//   AppRegistry,
-//   Button
-// } from 'react-native';
-//
-// import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-// import type {TextStyle} from "react-native/Libraries/StyleSheet/StyleSheet";
-//
-// const styles = StyleSheet.create({
-//   container: {
-//     ...StyleSheet.absoluteFillObject,
-//     height: 400,
-//     left: 0,
-//     right: 0,
-//     justifyContent: 'flex-end',
-//     alignItems: 'center',
-//   },
-//   map: {
-//     ...StyleSheet.absoluteFillObject,
-//   },
-// });
-//
-// var markers = [
-//     {
-//         latitude: 37.5655288,
-//         longitude: 126.9789198,
-//         title: 'Foo Place',
-//         subtitle: '1234 Foo Drive'
-//     }
-// ];
-// var naverLoginApi = 'http://101.101.160.246:3000/users/naver-login';
-// function getLoginToken() {
-//     var test = fetch(naverLoginApi, {
-//         method: 'GET',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//     });
-//     test.then(response => response.json())
-//         .then((responseJson)=> {
-//             // this.setState({
-//             //     loading: false,
-//             //     dataSource: responseJson
-//             // })
-//             console.log(responseJson.code);
-//             console.log(responseJson.api_url);
-//             return responseJson.code;
-//         })
-//         .catch(error=>console.log(error)) //to catch the errors if any
-//     // return url
-//     // console.log(1);
-// }
-// function showToast(message) {
-//     <Text>{message}</Text>
-//     console.log(message);
-// }
-// export default class GoogleMap extends Component {
-//   render() {
-//     return (
-//         <View style={styles.container}>
-//           <MapView
-//               provider={PROVIDER_GOOGLE} // remove if not using Google Maps
-//               style={styles.map}
-//               region={{
-//                   // 서울특별시청 주소를 첫 region으로 세팅
-//                 latitude: 37.5655288,
-//                 longitude: 126.9789198,
-//                 latitudeDelta: 0.0115,
-//                 longitudeDelta: 0.0112,
-//               }}
-//               annotations={markers}
-//           >
-//           <MapView.Marker
-//               coordinate={{
-//                   latitude: 37.5655288,
-//                   longitude: 126.9789198}}
-//               title={"서울"}
-//               description={"서울"}
-//           />
-//           </MapView>
-//           <Button title={"Test"} onPress={() => showToast(getLoginToken())}/>
-//         </View>
-//     );
-//   }
-// }
-// AppRegistry.registerComponent('client', () => GoogleMap);
-
-
 import React from "react";
 import {
     StyleSheet,
     View,
-    Text,
+    Text, Button, TextInput, FlatList, Image,
     TouchableOpacity,
     Platform,
     PermissionsAndroid
-} from "react-native";
+} from 'react-native';
+
 import MapView, {
     Marker,
     AnimatedRegion,
     Polyline,
     PROVIDER_GOOGLE
-} from "react-native-maps";
+} from "react-native-maps";import {createStackNavigator, createAppContainer} from 'react-navigation'
 import haversine from "haversine";
 navigator.geolocation = require('@react-native-community/geolocation');
 
-// const LATITUDE = 29.95539;
-// const LONGITUDE = 78.07513;
+import {FloatingAction} from "react-native-floating-action";
+import BackgroundTimer from 'react-native-background-timer';
+// import SplashScreen from "./screen/Splash";
+// import SplashScreen from 'react-native-splash-screen'
+
+// import Splash from "./src/Splash";
+
 const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = 0.009;
 const LATITUDE = 37.5666102;
@@ -142,6 +48,111 @@ export async function requestLocationPermission()
         }
     } catch (err) {
         console.warn(err)
+    }
+}
+
+
+const styles = StyleSheet.create({
+    container: {
+        ...StyleSheet.absoluteFillObject,
+        height: 400,
+        left: 0,
+        right: 0,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    },
+    container2: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    map: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    buttonContainer: {
+        marginLeft: 20,
+        marginRight: 20,
+        marginTop: 20
+    },
+    searchText: {
+        marginLeft: 20,
+        marginRight: 20,
+        marginTop: 20
+    },
+    alternativeLayoutButtonContainer: {
+        margin: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    bubble: {
+        flex: 1,
+        backgroundColor: "rgba(255,255,255,0.7)",
+        paddingHorizontal: 18,
+        paddingVertical: 12,
+        borderRadius: 20
+    },
+    latlng: {
+        width: 200,
+        alignItems: "stretch"
+    },
+    button: {
+        width: 80,
+        paddingHorizontal: 12,
+        alignItems: "center",
+        marginHorizontal: 10
+    },
+    viewStyles: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'orange'
+    },
+    textStyles: {
+        color: 'white',
+        fontSize: 40,
+        fontWeight: 'bold'
+    }
+});
+
+var markers = [
+    {
+        latitude: 37.5655288,
+        longitude: 126.9789198,
+        title: 'Foo Place',
+        subtitle: '1234 Foo Drive'
+    }
+];
+
+// class Splash extends React.Component {
+//     componentDidMount() {
+//         setTimeout(() => {
+//             SplashScreen.hide();
+//         }, 2000);
+//     }
+//
+//     render() {
+//         return (
+//             <View style={styles.container}>
+//             </View>
+//         );
+//     }
+// }
+class SplashScreen extends React.Component {
+
+    componentDidMount() {
+        setTimeout(
+            ()=>{this.props.navigation.navigate('Home2')},1000
+        )
+    }
+
+
+    render() {
+        return (
+            <View style={styles.viewStyles}>
+                <Text style={styles.textStyles}>
+                    Blitz Reading
+                </Text>
+            </View>
+        );
     }
 }
 
@@ -216,7 +227,7 @@ class AnimatedMarkers extends React.Component {
         latitude: this.state.latitude,
         longitude: this.state.longitude,
         latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA
+        longitudeDelta: LONGITUDE_DELTAgi
     });
 
     calcDistance = newLatLng => {
@@ -260,37 +271,130 @@ class AnimatedMarkers extends React.Component {
     }
 }
 
-const styles = StyleSheet.create({
-    container: {
-        ...StyleSheet.absoluteFillObject,
-        justifyContent: "flex-end",
-        alignItems: "center"
-    },
-    map: {
-        ...StyleSheet.absoluteFillObject
-    },
-    bubble: {
-        flex: 1,
-        backgroundColor: "rgba(255,255,255,0.7)",
-        paddingHorizontal: 18,
-        paddingVertical: 12,
-        borderRadius: 20
-    },
-    latlng: {
-        width: 200,
-        alignItems: "stretch"
-    },
-    button: {
-        width: 80,
-        paddingHorizontal: 12,
-        alignItems: "center",
-        marginHorizontal: 10
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        marginVertical: 20,
-        backgroundColor: "transparent"
-    }
-});
 
-export default AnimatedMarkers;
+class HomeScreen extends React.Component {
+
+
+    state = {
+        data: [],
+        page: 1 // here
+
+    }
+
+    _renderItem = ({item}) => (
+        <View style={{borderBottomWidth: 1, padding: 20, flexDirection: 'row'}}>
+            <Image source={{uri: item.url}} style={{width: 50, height: 50}}/>
+            <Text style={{justifyContent: 'space-between'}}>{item.title}</Text>
+            {/*// item.  뒤에 들어가는게 json에서 컬럼*/}
+            <Text>{item.id}</Text>
+        </View>
+    );
+
+    _getData = () => {
+        const url = 'https://jsonplaceholder.typicode.com/photos?_limit=10&_page=' + this.state.page; //서버 url
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                this.setState({
+                    data: this.state.data.concat(data),
+                    page: this.state.page + 1
+                })
+            });
+    }
+
+    componentDidMount() {
+        this._getData();
+    }
+
+    // here
+    _handleLoadMore = () => {
+        this._getData();
+    }
+
+    _onPressButton() {
+        {
+            () => this.props.navigation.navigate('Details')
+        }
+        // Alert.alert('You tapped the button!')
+    }
+
+
+    render() {
+        return (
+            <View style={styles.container2}>
+                <View style={styles.buttonContainer}>
+                    <Button
+                        onPress={() => this.props.navigation.navigate('Map')}
+                        // onPress={this._onPressButton}
+                        title="내 여행기록"
+                        color="#2ba104"
+                    />
+                </View>
+                <View style={styles.buttonContainer}>
+                    <Button
+                        onPress={this._onPressButton}
+                        title="타인의 여행기록"
+                        color="#2b77a1"
+                    />
+                </View>
+
+                <TextInput
+                    style={styles.searchText}
+                    placeholder="여기에 검색하세요"
+                    onChangeText={(text) => this.setState({text})}
+                    value={this.state.text}
+                />
+
+                <FlatList
+                    data={this.state.data}
+                    renderItem={this._renderItem}
+                    keyExtractor={(item, index) => item.id}
+                    onEndReached={this._handleLoadMore}
+                    onEndReachedThreshold={1}
+                />
+                <FloatingAction
+                    actions={actions}
+                    onPressItem={name => {
+                        this.props.navigation.navigate('Map');
+                        // console.log(`selected button: ${name}`);
+                    }}
+                />
+            </View>
+        );
+    }
+
+}
+
+
+const actions = [
+    {
+        text: "일지 시작하기",
+        name: "bt_accessibility",
+        position: 1,
+        color: "#2ba104"
+    },
+];
+
+
+const AppNavigator = createStackNavigator({
+    Home: {
+        screen: SplashScreen
+    },
+    Home2: {
+        screen: HomeScreen
+    },
+    Map: {
+        screen: AnimatedMarkers
+    }}
+);
+
+const AppContainer = createAppContainer(AppNavigator);
+
+export default class App extends React.Component {
+    render() {
+        return <AppContainer/>;
+    }
+}
+
+// AppRegistry.registerComponent('client', () => GoogleMap);
+// export AnimatedMarkers;
