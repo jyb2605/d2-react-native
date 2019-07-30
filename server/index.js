@@ -3,6 +3,7 @@ const fastify = require('fastify')({ logger: true })
 
 // Declare an API route
 fastify.register(require('./router/users'), { prefix: '/users'})
+fastify.register(require('./router/map'), { prefix: '/map'})
 
 
 fastify.get('/', async (request, reply) => {
