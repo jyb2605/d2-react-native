@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import {
     StyleSheet,
     View,
@@ -15,13 +15,15 @@ import MapView, {
     PROVIDER_GOOGLE
 } from "react-native-maps";import {createStackNavigator, createAppContainer} from 'react-navigation'
 import haversine from "haversine";
+import Login from "./screen/Login";
+
 navigator.geolocation = require('@react-native-community/geolocation');
 
 import {FloatingAction} from "react-native-floating-action";
 import BackgroundTimer from 'react-native-background-timer';
 // import SplashScreen from "./screen/Splash";
 // import SplashScreen from 'react-native-splash-screen'
-
+import Splash from "./screen/Login";
 // import Splash from "./src/Splash";
 
 const LATITUDE_DELTA = 0.009;
@@ -156,6 +158,15 @@ class SplashScreen extends React.Component {
     }
 }
 
+class LoginScreen extends Component {
+
+    render() {
+        return (
+            <Login />
+        );
+    }
+}
+
 class AnimatedMarkers extends React.Component {
     constructor(props) {
         super(props);
@@ -174,6 +185,18 @@ class AnimatedMarkers extends React.Component {
             })
         };
     }
+
+
+    componentWillMount() {
+        const intervalId = BackgroundTimer.setInterval(() => {
+            this.tick();
+        }, 3000);
+    }
+
+    tick() {
+        console.log('tic 2');
+    }
+
 
     componentDidMount() {
         requestLocationPermission()
@@ -227,7 +250,7 @@ class AnimatedMarkers extends React.Component {
         latitude: this.state.latitude,
         longitude: this.state.longitude,
         latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTAgi
+        longitudeDelta: LONGITUDE_DELTA
     });
 
     calcDistance = newLatLng => {
@@ -369,6 +392,7 @@ class HomeScreen extends React.Component {
 const actions = [
     {
         text: "일지 시작하기",
+        // icon: require("./images/borad.png"),
         name: "bt_accessibility",
         position: 1,
         color: "#2ba104"
@@ -382,6 +406,9 @@ const AppNavigator = createStackNavigator({
     },
     Home2: {
         screen: HomeScreen
+    },
+    Login: {
+        screen: LoginScreen
     },
     Map: {
         screen: AnimatedMarkers
