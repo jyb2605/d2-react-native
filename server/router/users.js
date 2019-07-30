@@ -1,6 +1,6 @@
 const key = require('../model/key')
+const db_con = require('../model/db_con')()
 const redirectURI = "http://101.101.160.246:3000/users/callback"
-
 
 async function routes (fastify, options) {
 
@@ -33,11 +33,11 @@ async function routes (fastify, options) {
         + naverKey.client_id + '&client_secret=' + naverKey.client_secret + '&redirect_uri=' + redirectURI + '&code=' + code + '&state=' + state;
 
        var request = require('request');
-       var options = {
+       var requestToken = {
            url: api_url,
            headers: {'X-Naver-Client-Id':naverKey.client_id, 'X-Naver-Client-Secret': naverKey.client_secret}
         };
-       request.get(options, function (error, response, body) {
+       request.get(requestToken, function (error, response, body) {
          if (!error && response.statusCode == 200) {
            body = JSON.parse(body)
 
@@ -48,13 +48,40 @@ async function routes (fastify, options) {
 
            res.header('content-type', 'application/json').code(200).send(result)
 
+           var getEmail = {
+               url: "https://openapi.naver.com/v1/nid/me",
+               headers: {'Authorization': result.token_type + ' ' + result.access_token}
+            };
+
+           request.get(getEmail, function (error, res, body) {
+             if (!error && res.statusCode == 200) {
+               body = JSON.parse(body)
+               email = body.response.email
+
+               var connection = db_con.init()
+
+               stmt = "SELECT EXISTS (SELECT * FROM users WHERE email = \'" + email + "\') AS exist"
+               connection.query(stmt, function (err, result){
+                    if (!result[0].exist) {
+                      // 회원가입
+                        connection.query("INSERT INTO users(email) VALUES(\'" + email + "\')", function (err, result){})
+                    }
+               })
+
+             } else {
+               result.code = res.statusCode
+               console.log('error = ' + res.statusCode);
+               res.send(res.statusCode)
+             }
+           });//end getEmail
+
          } else {
            result.code = response.statusCode
 
            res.status(response.statusCode).end(result);
            console.log('error = ' + response.statusCode);
          }
-       });
+       });//end requestToken
    });
 
    fastify.get('/refresh', async (req, res) =>  {
