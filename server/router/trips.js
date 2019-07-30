@@ -106,7 +106,72 @@ async function routes (fastify, options) {
     })// end request
   })// end /:trip
 
- 
+  fastify.get('/', async (req, res) =>  {
+    var authorization = req.headers.authorization;
+    var result = new Object()
+
+    var search = req.query.search;
+    var type = req.query.type;
+    var userNo = req.query.userNo;
+
+    console.log(search)
+    console.log(type)
+    console.log("!")
+
+
+    var check = {
+        url: "https://openapi.naver.com/v1/nid/verify",
+        headers: {'Authorization': 'Bearer ' + authorization }
+     };
+
+    request.get(check, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        body = JSON.parse(body)
+
+        if(body.resultcode == "00"){
+            var connection = db_con.init()
+
+            stmt = "SELECT title, location, begin_timestamp, end_timestamp FROM trips WHERE (title LIKE \'%" + search + "%\' OR location LIKE \'%" + search + "%\')"
+
+            if(type == "ME"){
+              stmt += " AND user_no = " + userNo
+            }
+
+            console.log(stmt)
+
+            connection.query(stmt, function (err, db_result){
+                result.trips = new Array()
+
+                for(var idx = 0; idx < db_result.length; idx++){
+                    tmp = new Object()
+                    tmp.title = db_result[idx].title
+                    tmp.location = db_result[idx].location
+                    tmp.begin_timestamp = db_result[idx].begin_timestamp
+                    tmp.end_timestamp = db_result[idx].end_timestamp
+
+                    result.trips.push(tmp)
+                }
+
+                result.code = 200
+                result.message = "일지 조회 성공"
+
+                res.header('content-type', 'application/json').code(200).send(result)
+            })
+        }// 토큰 유효
+        else{
+            result.code = 300
+            result.message = "토큰 인증 실패"
+
+            res.header('content-type', 'application/json').code(300).send(result)
+        }// 토큰 유효 X
+      } else {
+        result.code = 300
+        result.message = "토큰 인증 실패"
+
+        res.header('content-type', 'application/json').code(300).send(result)
+      }
+    })// end request
+  })// end /location
 
 
 }
