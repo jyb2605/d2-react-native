@@ -1,8 +1,8 @@
 platform :ios, '9.0'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-target 'client' do
-  # Pods for client
+target 'TestProject' do
+  # Pods for TestProject
   pod 'React', :path => '../node_modules/react-native/'
   pod 'React-Core', :path => '../node_modules/react-native/React'
   pod 'React-DevSupport', :path => '../node_modules/react-native/React'
@@ -28,15 +28,7 @@ target 'client' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
-  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
-
-  pod 'react-native-geolocation', :path => '../node_modules/@react-native-community/geolocation'
-
-  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
-
-  pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
-
-  target 'clientTests' do
+  target 'TestProjectTests' do
     inherit! :search_paths
     # Pods for testing
   end
@@ -44,10 +36,10 @@ target 'client' do
   use_native_modules!
 end
 
-target 'client-tvOS' do
-  # Pods for client-tvOS
+target 'TestProject-tvOS' do
+  # Pods for TestProject-tvOS
 
-  target 'client-tvOSTests' do
+  target 'TestProject-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end

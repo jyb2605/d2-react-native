@@ -41,7 +41,6 @@ async function routes (fastify, options) {
          if (!error && response.statusCode == 200) {
            body = JSON.parse(body)
 
-
            var getEmail = {
                url: "https://openapi.naver.com/v1/nid/me",
                headers: {'Authorization': result.token_type + ' ' + result.access_token}
@@ -49,7 +48,6 @@ async function routes (fastify, options) {
 
            request.get(getEmail, function (error, response, body) {
              if (!error && response.statusCode == 200) {
-               console.log("1")
                body = JSON.parse(body)
                email = body.response.email
 
@@ -71,18 +69,16 @@ async function routes (fastify, options) {
                })
 
              } else {
-                 result.code = 300;
-                 result.message = "토큰 인증 실패"
-
-                 res.header('content-type', 'application/json').code(300).send(result)
+               result.code = 300
+               result.message = "토큰 인증 실패"
+               res.header('content-type', 'application/json').code(300).send(result)
              }
            });//end getEmail
 
          } else {
-           result.code = response.statusCode
-
-           res.status(response.statusCode).end(result);
-           console.log('error = ' + response.statusCode);
+             result.code = 300
+             result.message = "토큰 인증 실패"
+             res.header('content-type', 'application/json').code(300).send(result)
          }
        });//end requestToken
    });
