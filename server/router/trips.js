@@ -106,8 +106,7 @@ async function routes (fastify, options) {
     })// end request
   })// end /:trip
 
-
-
+ 
 
 
 }
