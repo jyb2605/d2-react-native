@@ -54,6 +54,7 @@ export default class App extends React.Component {
             .then((responseJson) => {
                 if(responseJson.code === 200){
                     Alert.alert("성공")
+                    this.props.navigation.goBack();
                 }
                 else{
                     Alert.alert(JSON.stringify(responseJson))
