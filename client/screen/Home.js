@@ -83,6 +83,7 @@ export default class HomeScreen extends React.Component {
         message: "",
         accessToken: "",
         refreshToken: "",
+        userNo: 0,
         data: [],
         page: 1 // here
 
@@ -118,19 +119,46 @@ export default class HomeScreen extends React.Component {
         this._getData();
     }
 
-    startRecord = () => {
+    getStartRecordInfo = (accessToken, userNo) => {
+        const tripsRegisterAPI = 'http://101.101.160.246:3000/trips/register';
+        const getStartRecord = fetch(tripsRegisterAPI, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': accessToken
+            },
+            body: JSON.stringify({
+                'userNo': Number(userNo)
+            })
+        })
+        getStartRecord.then(response => response.json())
+            .then((responseJson) => {
+                if (responseJson.code == 200) {
+                    // console.log(responseJson.tripNo);
+                    this.props.navigation.navigate('Map', {tripNo: responseJson.tripNo});
+                } else if (responseJson.code == 300) {
+                }
+            })
+            .catch(error=>console.log(error)) //to catch the errors if any
+    }
 
+    startRecord = () => {
         sharedPreferences.getString("refreshToken", (result) => {
             getAccessToken(result);
         })
 
         sharedPreferences.getString("accessToken", (result) => {
-            console.log(result);
+            this.setState({
+                accessToken: result
+            })
+
+            sharedPreferences.getString("userNo", (result) => {
+                this.getStartRecordInfo(this.state.accessToken, result);
+            })
         })
         // console.log(this.state.accessToken);
-        this.props.navigation.navigate('Map');
     }
-
 
     render() {
         return (
