@@ -196,6 +196,8 @@ android {
 }
 
 dependencies {
+    implementation project(':rn-fetch-blob')
+    implementation project(':react-native-image-picker')
     implementation project(':react-native-naver-login')
     implementation project(':react-native-webview')
     implementation project(':react-native-background-timer')

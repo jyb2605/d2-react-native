@@ -5,7 +5,7 @@ import {
     Text, Button, TextInput, FlatList, Image,
     TouchableOpacity,
     Platform,
-    PermissionsAndroid
+    PermissionsAndroid, Alert
 } from 'react-native';
 
 import {FloatingAction} from "react-native-floating-action";
@@ -110,6 +110,51 @@ export default class HomeScreen extends React.Component {
     // here
     _handleLoadMore = () => {
         this._getData();
+    }
+
+    getRecordList() {
+        //
+        // let data = {
+        //     method: 'POST',
+        //     credentials: 'same-origin',
+        //     mode: 'same-origin',
+        //     body: JSON.stringify({
+        //         'title': this.state.title,
+        //         'location': this.state.place
+        //     }),
+        //     headers: {
+        //         'content-type': 'application/json',
+        //         'authorization': 'AAAAN5Qk0GPDLYODStkLwVLfFuVXaXTjMv6rpRoJYmVsS/l8mo8iJ4z/wt6bEe7S1AzeaQtUXblUPjwkZHDLQAST7QI='
+        //     }
+        // }
+        // return fetch('http://101.101.160.246:3000/trips/' + 10, data)
+        // .then(response => response.json())  // promise /
+        // .then(json => dispatch(receiveAppos(json)))
+
+
+        fetch('http://101.101.160.246:3000/trips/' + 1, {
+            method: 'PUT',
+            headers: {
+                'content-type': 'application/json',
+                'authorization': 'AAAAN5Qk0GPDLYODStkLwVLfFuVXaXTjMv6rpRoJYmVsS/l8mo8iJ4z/wt6bEe7S1AzeaQtUXblUPjwkZHDLQAST7QI='
+            },
+            body: JSON.stringify({
+                title: this.state.title,
+                location: this.state.place
+            }),
+        }).then((response) => response.json())
+            .then((responseJson) => {
+                if(responseJson.code === 200){
+                    Alert.alert("성공")
+                }
+                else{
+                    Alert.alert(JSON.stringify(responseJson))
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
     }
 
 

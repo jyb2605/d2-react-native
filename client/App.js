@@ -1,12 +1,4 @@
 import React, {Component} from "react";
-import {
-    StyleSheet,
-    View,
-    Text, Button, TextInput, FlatList, Image,
-    TouchableOpacity,
-    Platform,
-    PermissionsAndroid
-} from 'react-native';
 
 import {createStackNavigator, createAppContainer} from 'react-navigation'
 import LoginScreen from "./screen/Login";
@@ -14,6 +6,8 @@ import MapScreen from "./screen/Map";
 import HomeScreen from "./screen/Home";
 import SplashScreen from "./screen/Splash";
 import WebScreen from "./screen/Web";
+import RecordEndScreem from "./screen/RecordEnd";
+import TestScreem from "./screen/PhotoUpload";
 
 
 navigator.geolocation = require('@react-native-community/geolocation');
@@ -21,7 +15,13 @@ navigator.geolocation = require('@react-native-community/geolocation');
 
 const AppNavigator = createStackNavigator({
         Splash: {
-            screen: SplashScreen
+            screen: TestScreem
+        },
+        RecordEnd: {
+            screen: RecordEndScreem
+        },
+        Test: {
+            screen: RecordEndScreem
         },
         Home: {
             screen: HomeScreen
@@ -35,7 +35,7 @@ const AppNavigator = createStackNavigator({
         Map: {
             screen: MapScreen
         }
-         }, {
+    }, {
         defaultNavigationOptions: {
             header: null
         },
