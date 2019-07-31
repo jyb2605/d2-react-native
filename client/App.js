@@ -8,7 +8,7 @@ import SplashScreen from "./screen/Splash";
 import WebScreen from "./screen/Web";
 import RecordEndScreem from "./screen/RecordEnd";
 import TestScreem from "./screen/PhotoUpload";
-
+import MapDetailScreen from  "./screen/MapDetail";
 import RNSharedPreferences from 'react-native-android-shared-preferences';
 
 navigator.geolocation = require('@react-native-community/geolocation');
@@ -46,7 +46,7 @@ const AppNavigator = createStackNavigator({
             screen: RecordEndScreem
         },
         Test: {
-            screen: RecordEndScreem
+            screen: TestScreem
         },
         Home: {
             screen: HomeScreen

@@ -19,34 +19,12 @@ import haversine from "haversine";
 
 navigator.geolocation = require('@react-native-community/geolocation');
 import BackgroundTimer from 'react-native-background-timer';
-import {getAccessToken, sharedPreferences} from "../App";
+import { getAccessToken, sharedPreferences} from "../App";
 
 const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = 0.009;
 const LATITUDE = 37.5666102;
 const LONGITUDE = 126.9783881;
-
-// 유저 위치 권한 허용부분
-export async function requestLocationPermission() {
-    try {
-        const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            {
-                'title': 'Example App',
-                'message': 'Example App access to your location '
-            }
-        )
-        // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        //     console.log("You can use the location")
-        //     alert("You can use the location");
-        // } else {
-        //     console.log("location permission denied")
-        //     alert("Location permission denied");
-        // }
-    } catch (err) {
-        console.warn(err)
-    }
-}
 
 
 const styles = StyleSheet.create({
@@ -68,7 +46,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginLeft: 20,
         marginRight: 20,
-        marginTop: 200
+        marginTop: 20
     },
     mapButtonContainer: {
         flexDirection: "row",
@@ -123,7 +101,7 @@ var markers = [
         subtitle: '1234 Foo Drive'
     }
 ];
-export default class AnimatedMarkers extends React.Component {
+export default class JustGPS extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -140,7 +118,25 @@ export default class AnimatedMarkers extends React.Component {
             })
         };
     }
-
+    _getData = (accessToken, tripNo) => {
+        const url = 'http://101.101.160.246:3000/map/paths?tripNo=' + tripNo; //서버 url
+        fetch(url, {
+            method: "GET",
+            headers: {
+            Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': accessToken
+            },
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+                console.log(responseJson);
+                this.setState({
+                    routeCoordinates: this.state.routeCoordinates.concat(responseJson.locations)
+                })
+                console.log(this.state.routeCoordinates);
+            });
+    }
     getTripNoFromHome = () => {
         const {navigation} = this.props;
         const tripNo = navigation.getParam('tripNo', '0');
@@ -148,38 +144,7 @@ export default class AnimatedMarkers extends React.Component {
         return tripNo;
     }
 
-    postLocationInfo = (latitude, longitude, accessToken, tripNo) => {
-        const postLocationAPI = 'http://101.101.160.246:3000/map/location';
-        const postTripRecord = fetch(postLocationAPI, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': accessToken
-            },
-            body: JSON.stringify({
-                'tripNo': tripNo,
-                'latitude': latitude,
-                'longitude': longitude
-            })
-        });
-        // console.log("success");
-        postTripRecord.then(response => response.json())
-            .then((responseJson) => {
-                if (responseJson.code == 200) {
-                    console.log("Code : 200");
-                } else if (responseJson.code == 300) {
-                    console.log("Code : 300");
-                    sharedPreferences.getString("refreshToken", (result) => {
-                        getAccessToken(result);
-                        sharedPreferences.getString("accessToken", (result) => {
-                            this.postLocationInfo(this.state.latitude, this.state.longitude, result, tripNo);
-                        })
-                    })
-                }
-            })
-            .catch(error => console.log(error)) //to catch the errors if any
-    }
+
 
 
     // componentDidMount() {
@@ -203,53 +168,54 @@ export default class AnimatedMarkers extends React.Component {
 
 
     componentDidMount() {
-        requestLocationPermission()
-        const {coordinate} = this.state;
-        this.watchID = navigator.geolocation.watchPosition(
-            position => {
-                const {routeCoordinates, distanceTravelled} = this.state;
-                const {latitude, longitude} = position.coords;
-
-                const newCoordinate = {
-                    latitude,
-                    longitude
-                };
-                sharedPreferences.getString("accessToken", (result) => {
-                    this.postLocationInfo(this.state.latitude, this.state.longitude, result, this.getTripNoFromHome());
-                })
-                // console.log(position.coords);
-                if (Platform.OS === "android") {
-                    if (this.marker) {
-                        this.marker._component.animateMarkerToCoordinate(
-                            newCoordinate,
-                            500
-                        );
-                    }
-                } else {
-                    coordinate.timing(newCoordinate).start();
-                }
-                this.setState({
-                    latitude,
-                    longitude,
-                    routeCoordinates: routeCoordinates.concat([newCoordinate]),
-                    distanceTravelled:
-                        distanceTravelled + this.calcDistance(newCoordinate),
-                    prevLatLng: newCoordinate
-                });
-            },
-            error => console.log(error),
-            {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 1000,
-                distanceFilter: 10
-            }
-        );
+        this._getData('AAAAOytvlCu9FVVd6WBgcVUi9uDpB5zkXnf7F9NuoGcMbzrMfbYbUEKjcV/kLwFucwSbl+dHummVOimAzGPFM13Dml8=', 3);
+        // requestLocationPermission()
+        // const {coordinate} = this.state;
+        // this.watchID = navigator.geolocation.watchPosition(
+        //     position => {
+        //         const {routeCoordinates, distanceTravelled} = this.state;
+        //         const {latitude, longitude} = position.coords;
+        //
+        //         const newCoordinate = {
+        //             latitude,
+        //             longitude
+        //         };
+        //         sharedPreferences.getString("accessToken", (result) => {
+        //             this.postLocationInfo(this.state.latitude, this.state.longitude, result, this.getTripNoFromHome());
+        //         })
+        //         // console.log(position.coords);
+        //         if (Platform.OS === "android") {
+        //             if (this.marker) {
+        //                 this.marker._component.animateMarkerToCoordinate(
+        //                     newCoordinate,
+        //                     500
+        //                 );
+        //             }
+        //         } else {
+        //             coordinate.timing(newCoordinate).start();
+        //         }
+        //         this.setState({
+        //             latitude,
+        //             longitude,
+        //             routeCoordinates: routeCoordinates.concat([newCoordinate]),
+        //             distanceTravelled:
+        //                 distanceTravelled + this.calcDistance(newCoordinate),
+        //             prevLatLng: newCoordinate
+        //         });
+        //     },
+        //     error => console.log(error),
+        //     {
+        //         enableHighAccuracy: true,
+        //         timeout: 20000,
+        //         maximumAge: 1000,
+        //         distanceFilter: 10
+        //     }
+        // );
     }
-
-    componentWillUnmount() {
-        navigator.geolocation.clearWatch(this.watchID);
-    }
+    //
+    // componentWillUnmount() {
+    //     navigator.geolocation.clearWatch(this.watchID);
+    // }
 
     getMapRegion = () => ({
         latitude: this.state.latitude,
@@ -267,6 +233,7 @@ export default class AnimatedMarkers extends React.Component {
     render() {
         return (
             <View style={styles.container2}>
+                <View style={styles.container}>
 
                     <MapView
                         style={styles.map}
@@ -294,30 +261,8 @@ export default class AnimatedMarkers extends React.Component {
                         </TouchableOpacity>
                     </View>
                     {/*<Button title={"test"} onPress={ }/>*/}
-
-                <View style={styles.buttonContainer}>
-
-                    <Button
-                        style={styles.buttonContainer}
-                        onPress={() => {
-                            // this.recordEnd();
-                        }}                    // onPress={this._onPressButton}
-                        title="사진 업로드"
-                        color="#2ba104"
-                    />
                 </View>
 
-                <View style={styles.buttonContainer}>
-
-                    <Button
-                        style={styles.buttonContainer}
-                        onPress={() => {
-                            this.props.navigation.navigate('RecordEnd',{tripNo:this.getTripNoFromHome()});
-                        }}                    // onPress={this._onPressButton}
-                        title="일지 종료"
-                        color="#2b3ef2"
-                    />
-                </View>
             </View>
         );
     }

@@ -3,6 +3,7 @@ import React from 'react';
 //import react in our code.
 
 import {TextInput, View, StyleSheet, Text, Button, Alert} from 'react-native';
+import {getAccessToken, sharedPreferences} from "../App";
 //import all the components we are going to use.
 
 export default class App extends React.Component {
@@ -13,8 +14,13 @@ export default class App extends React.Component {
             place: '',
         };
     }
-
-    recordEnd() {
+    getTripNoFromHome = () => {
+        const {navigation} = this.props;
+        const tripNo = navigation.getParam('tripNo', '0');
+        console.log(tripNo);
+        return tripNo;
+    }
+    recordEnd(accessToken, tripNo) {
         //
         // let data = {
         //     method: 'POST',
@@ -32,13 +38,13 @@ export default class App extends React.Component {
         // return fetch('http://101.101.160.246:3000/trips/' + 10, data)
         // .then(response => response.json())  // promise /
         // .then(json => dispatch(receiveAppos(json)))
+        console.log(tripNo);
 
-
-        fetch('http://101.101.160.246:3000/trips/' + 1, {
+        fetch('http://101.101.160.246:3000/trips/' + Number(tripNo), {
             method: 'PUT',
             headers: {
                 'content-type': 'application/json',
-                'authorization': 'AAAAN5Qk0GPDLYODStkLwVLfFuVXaXTjMv6rpRoJYmVsS/l8mo8iJ4z/wt6bEe7S1AzeaQtUXblUPjwkZHDLQAST7QI='
+                'authorization': accessToken
             },
             body: JSON.stringify({
                 title: this.state.title,
@@ -59,6 +65,14 @@ export default class App extends React.Component {
 
     }
 
+    recordEndClick = () => {
+        sharedPreferences.getString("refreshToken", (result) => {
+            getAccessToken(result);
+            sharedPreferences.getString("accessToken", (result) => {
+                this.recordEnd(result, this.getTripNoFromHome());
+            })
+        })
+    }
 
     render() {
         return (
@@ -79,7 +93,7 @@ export default class App extends React.Component {
                 />
 
                 <Button
-                    onPress={ ()=>{this.recordEnd(); }}                    // onPress={this._onPressButton}
+                    onPress={ ()=>{this.recordEndClick(); }}                    // onPress={this._onPressButton}
                     title="작성완"
                     color="#2ba104"
                 />
@@ -88,6 +102,7 @@ export default class App extends React.Component {
         );
     }
 }
+
 
 const styles = StyleSheet.create({
     container: {
