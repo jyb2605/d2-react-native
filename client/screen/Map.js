@@ -20,6 +20,7 @@ import haversine from "haversine";
 navigator.geolocation = require('@react-native-community/geolocation');
 import BackgroundTimer from 'react-native-background-timer';
 import {getAccessToken, sharedPreferences} from "../App";
+import ImagePicker from "react-native-image-picker";
 
 const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = 0.009;
@@ -137,7 +138,13 @@ export default class AnimatedMarkers extends React.Component {
                 longitude: LONGITUDE,
                 latitudeDelta: 0,
                 longitudeDelta: 0
-            })
+            }),
+
+            ImageSource: null,
+
+            data: null,
+
+            Image_TAG: ''
         };
     }
 
@@ -146,6 +153,93 @@ export default class AnimatedMarkers extends React.Component {
         const tripNo = navigation.getParam('tripNo', '0');
         console.log(tripNo);
         return tripNo;
+    }
+
+    selectPhotoTapped() {
+        const options = {
+            quality: 1.0,
+            maxWidth: 500,
+            maxHeight: 500,
+            storageOptions: {
+                skipBackup: true
+            }
+        };
+
+        ImagePicker.showImagePicker(options, (response) => {
+            console.log('Response = ', response);
+
+            if (response.didCancel) {
+                console.log('User cancelled photo picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            } else {
+                let source = {uri: response.uri};
+
+                this.setState({
+                    ImageSource: source,
+                    data: response
+                });
+                sharedPreferences.getString("accessToken", (result) => {
+                    console.log(result)
+                    this.postImage(result, this.getTripNoFromHome());
+                });
+            }
+        });
+    }
+
+
+    postImage(accessToken, tripNo) {
+
+
+        const postLocationAPI = 'http://101.101.160.246:3000/trips/image';
+        let formdata = new FormData();
+
+        // formdata.append("file", this.state.ImageSource.uri);
+        formdata.append("file", {
+            name: this.state.data.fileName,
+            type: this.state.data.type,
+            uri:
+                Platform.OS === "android" ? this.state.data.uri : this.state.data.uri.replace("file://", "")
+        });
+
+
+        formdata.append("tripNo", tripNo);
+
+
+
+        const upload = fetch(postLocationAPI, {
+            method: 'POST',
+            headers: {
+                // Accept: 'application/json',
+                'type':'image/jpg',
+                'Content-Type': 'multipart/form-data',
+                'Authorization': accessToken
+            },
+            body: formdata
+        });
+
+        console.log(formdata);
+
+        upload.then(response => response.json())
+            .then((responseJson) => {
+                console.log(responseJson);
+                if (responseJson.code === 200) {
+                    console.log("Code : 200");
+
+                } else if (responseJson.code === 300) {
+                    console.log("Code : 300");
+                    sharedPreferences.getString("refreshToken", (result) => {
+                        getAccessToken(result);
+
+                        sharedPreferences.getString("accessToken", (result) => {
+                            // this.postImage(result);
+                        })
+                    })
+                }
+            })
+            .catch(error => console.log(error)) //to catch the errors if any
     }
 
     postLocationInfo = (latitude, longitude, accessToken, tripNo) => {
@@ -300,8 +394,8 @@ export default class AnimatedMarkers extends React.Component {
                     <Button
                         style={styles.buttonContainer}
                         onPress={() => {
-                            // this.recordEnd();
-                        }}                    // onPress={this._onPressButton}
+                            this.selectPhotoTapped();
+                        }}                  // onPress={this._onPressButton}
                         title="사진 업로드"
                         color="#2ba104"
                     />

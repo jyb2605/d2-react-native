@@ -8,6 +8,7 @@ import SplashScreen from "./screen/Splash";
 import WebScreen from "./screen/Web";
 import RecordEndScreem from "./screen/RecordEnd";
 import TestScreem from "./screen/PhotoUpload";
+
 import MapDetailScreen from  "./screen/MapDetail";
 import RNSharedPreferences from 'react-native-android-shared-preferences';
 
@@ -59,7 +60,10 @@ const AppNavigator = createStackNavigator({
         },
         Map: {
             screen: MapScreen
-        }
+        },
+    MapDetail: {
+        screen: MapDetailScreen
+    }
     }, {
         defaultNavigationOptions: {
             header: null

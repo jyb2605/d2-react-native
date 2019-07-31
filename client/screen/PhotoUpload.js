@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {StyleSheet, Text, View, PixelRatio, TouchableOpacity, Image, TextInput, Alert} from 'react-native';
+import {StyleSheet, Text, View, PixelRatio, TouchableOpacity, Image, TextInput, Alert, Button} from 'react-native';
 
 import ImagePicker from 'react-native-image-picker';
 
@@ -47,10 +47,8 @@ export default class Project extends Component {
                 let source = {uri: response.uri};
 
                 this.setState({
-
                     ImageSource: source,
-                    data: response.data
-
+                    data: response
                 });
             }
         });
@@ -78,21 +76,59 @@ export default class Project extends Component {
 
     }
 
-    postImage(accessToken, image) {
+    createFormData = (photo, body) => {
+        const data = new FormData();
+
+        data.append("photo", {
+            name: photo.fileName,
+            type: photo.type,
+            uri:
+                Platform.OS === "android" ? photo.uri : photo.uri.replace("file://", "")
+        });
+
+        Object.keys(body).forEach(key => {
+            data.append(key, body[key]);
+        });
+
+        // console.log("dddddddddasd")
+        return data;
+    };
+
+    postImage(accessToken) {
         const postLocationAPI = 'http://101.101.160.246:3000/trips/image';
+
+
+        let formdata = new FormData();
+
+        // formdata.append("file", this.state.ImageSource.uri);
+        formdata.append("file", {
+            name: this.state.data.fileName,
+            type: this.state.data.type,
+            uri:
+                Platform.OS === "android" ? this.state.data.uri : this.state.data.uri.replace("file://", "")
+        });
+
+
+        formdata.append("tripNo", 2);
+
+
+
         const upload = fetch(postLocationAPI, {
             method: 'POST',
             headers: {
                 // Accept: 'application/json',
+                'type':'image/jpg',
                 'Content-Type': 'multipart/form-data',
                 'Authorization': accessToken
             },
-            body: JSON.stringify({
-                'file': image
-            })
+            body: formdata
         });
+
+        console.log(formdata);
+
         upload.then(response => response.json())
             .then((responseJson) => {
+                console.log(responseJson);
                 if (responseJson.code === 200) {
                     console.log("Code : 200");
 
@@ -100,8 +136,9 @@ export default class Project extends Component {
                     console.log("Code : 300");
                     sharedPreferences.getString("refreshToken", (result) => {
                         getAccessToken(result);
+
                         sharedPreferences.getString("accessToken", (result) => {
-                            this.postImage(result);
+                            // this.postImage(result);
                         })
                     })
                 }
@@ -127,10 +164,10 @@ export default class Project extends Component {
         return fetch(url, options)
             .then(response => response.json())
             .then(responseJson => {
-                    //You put some checks here
-                    console.log(responseJson)
-                    return responseJson;
-                });
+                //You put some checks here
+                console.log(responseJson)
+                return responseJson;
+            });
 
 
     }
@@ -172,11 +209,8 @@ export default class Project extends Component {
                 {/*    this.postImage(result, this.state.ImageSource);*/}
                 {/*})*/}
                 {/*} activeOpacity={0.6} style={styles.button}>*/}
-                <TouchableOpacity onPress={ ()=>{this.upload('http://101.101.160.246:3000/trips/image', {
-                    file: this.state.ImageSource
-                }).then(r => {
-                    //do something with `r`
-                });}}
+                <TouchableOpacity onPress={() => this.postImage()}
+
                                   activeOpacity={0.6} style={styles.button}>
 
                     <Text style={styles.TextStyle}> UPLOAD IMAGE TO SERVER </Text>

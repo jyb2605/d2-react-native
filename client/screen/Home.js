@@ -89,13 +89,26 @@ export default class HomeScreen extends React.Component {
 
     }
 
+
+    goDetail = (tripNo) => {
+        this.props.navigation.navigate('MapDetail', {tripNo: tripNo});
+    }
+
     _renderItem = ({item}) => (
-        <View style={{borderBottomWidth: 1, padding: 20, flexDirection: 'row'}}>
-            <Image source={{uri: item.image_url}} style={{width: 50, height: 50}}/>
-            <Text style={{justifyContent: 'space-between'}}>{item.title}</Text>
-            {/*// item.  뒤에 들어가는게 json에서 컬럼*/}
-            {/*<Text>{item.title}</Text>*/}
-        </View>
+        <TouchableOpacity onPress={ () =>
+            this.goDetail(item.tripNo)
+        }>
+
+
+            <View style={{borderBottomWidth: 1, padding: 20, flexDirection: 'row'}}>
+                <Image source={{uri: item.image_url}} style={{width: 50, height: 50}}/>
+                <Text style={{justifyContent: 'space-between'}}>{item.title}</Text>
+                {/*// item.  뒤에 들어가는게 json에서 컬럼*/}
+                {/*<Text>{item.title}</Text>*/}
+            </View>
+
+        </TouchableOpacity>
+
     );
 
     getRecordList = (accessToken) => {

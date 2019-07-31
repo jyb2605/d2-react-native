@@ -168,7 +168,10 @@ export default class JustGPS extends React.Component {
 
 
     componentDidMount() {
-        this._getData('AAAAOytvlCu9FVVd6WBgcVUi9uDpB5zkXnf7F9NuoGcMbzrMfbYbUEKjcV/kLwFucwSbl+dHummVOimAzGPFM13Dml8=', 3);
+        sharedPreferences.getString("accessToken", (result) => {
+            this._getData(result, this.getTripNoFromHome());
+        })
+
         // requestLocationPermission()
         // const {coordinate} = this.state;
         // this.watchID = navigator.geolocation.watchPosition(
@@ -232,8 +235,7 @@ export default class JustGPS extends React.Component {
 
     render() {
         return (
-            <View style={styles.container2}>
-                <View style={styles.container}>
+                <View style={styles.container2}>
 
                     <MapView
                         style={styles.map}
@@ -263,7 +265,6 @@ export default class JustGPS extends React.Component {
                     {/*<Button title={"test"} onPress={ }/>*/}
                 </View>
 
-            </View>
         );
     }
 }
