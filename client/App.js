@@ -1,12 +1,4 @@
 import React, {Component} from "react";
-import {
-    StyleSheet,
-    View,
-    Text, Button, TextInput, FlatList, Image,
-    TouchableOpacity,
-    Platform,
-    PermissionsAndroid
-} from 'react-native';
 
 import {createStackNavigator, createAppContainer} from 'react-navigation'
 import LoginScreen from "./screen/Login";
@@ -14,10 +6,13 @@ import MapScreen from "./screen/Map";
 import HomeScreen from "./screen/Home";
 import SplashScreen from "./screen/Splash";
 import WebScreen from "./screen/Web";
+import RecordEndScreem from "./screen/RecordEnd";
+import TestScreem from "./screen/PhotoUpload";
 import MapDetailScreen from  "./screen/MapDetail";
 import RNSharedPreferences from 'react-native-android-shared-preferences';
 
 navigator.geolocation = require('@react-native-community/geolocation');
+
 export var sharedPreferences = RNSharedPreferences.getSharedPreferences("userInfo");
 
 export function getAccessToken(refreshToken) {
@@ -31,7 +26,6 @@ export function getAccessToken(refreshToken) {
     })
     getToken.then(response => response.json())
         .then((responseJson) => {
-
             var accessToken = responseJson.access_token;
             var newRefreshToken = responseJson.refresh_token;
             sharedPreferences.putString("accessToken", accessToken, (result) => {
@@ -40,14 +34,19 @@ export function getAccessToken(refreshToken) {
             sharedPreferences.putString("refreshToken", newRefreshToken, (result) => {
                 console.log("refreshToken: " + result);
             });
-
         })
 }
 
 
 const AppNavigator = createStackNavigator({
         Splash: {
-            screen: MapDetailScreen
+            screen: SplashScreen
+        },
+        RecordEnd: {
+            screen: RecordEndScreem
+        },
+        Test: {
+            screen: TestScreem
         },
         Home: {
             screen: HomeScreen
@@ -61,7 +60,7 @@ const AppNavigator = createStackNavigator({
         Map: {
             screen: MapScreen
         }
-         }, {
+    }, {
         defaultNavigationOptions: {
             header: null
         },

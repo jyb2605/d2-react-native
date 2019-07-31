@@ -3,9 +3,9 @@ import {AppRegistry, Image, View, StyleSheet, TouchableOpacity, Linking} from 'r
 import {WebView} from 'react-native-webview';
 import {Alert } from 'react-native';
 
-import {StackActions, NavigationActions} from 'react-navigation';
-import RNSharedPreferences from "react-native-android-shared-preferences";
 import { sharedPreferences } from "../App";
+import RNSharedPreferences from "react-native-android-shared-preferences";
+// export var sharedPreferences = RNSharedPreferences.getSharedPreferences("userInfo");
 
 const stylesLogin = StyleSheet.create({
     container: {
@@ -44,7 +44,7 @@ export default class MyWeb extends Component {
                 console.log("accessToken: " + result);
             });
             sharedPreferences.putString("refreshToken", data.refresh_token, (result) => {
-                // console.log("refreshToken: " + result);
+                console.log("refreshToken: " + result);
             });
             sharedPreferences.putString("userNo", String(data.userNo), (result) => {
                 // console.log()
@@ -52,14 +52,16 @@ export default class MyWeb extends Component {
 
             //여기서 토큰저장 필요
             //저장 후 바로 화면전환
-            this.props.navigation.navigate('Home',)
+            // Alert.alert('AAAAAAAA');
+            this.props.navigation.navigate('Home')
+            // console.log("Ddddddd");
             // Alert.alert("data = " + JSON.stringify(data));
         }
-        // else {
-        //     //실패
-        //     this.props.navigation.navigate('Home',)
-        //     // this.props.navigation.goBack();
-        // }
+        else {
+            //실패
+            this.props.navigation.navigate('Home',)
+            // this.props.navigation.goBack();
+        }
 
     }
 
@@ -71,7 +73,6 @@ export default class MyWeb extends Component {
                 source={{uri: this.getUrlFromLogin()}}
                 onMessage={(event) => this.webViewEnd(event)}
                 // onMessage={(event) => Alert.alert(event.nativeEvent.data)}
-
             />
 
         );

@@ -19,7 +19,7 @@ import haversine from "haversine";
 
 navigator.geolocation = require('@react-native-community/geolocation');
 import BackgroundTimer from 'react-native-background-timer';
-import { getAccessToken, sharedPreferences} from "../App";
+import {getAccessToken, sharedPreferences} from "../App";
 
 const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = 0.009;
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginLeft: 20,
         marginRight: 20,
-        marginTop: 20
+        marginTop: 200
     },
     mapButtonContainer: {
         flexDirection: "row",
@@ -178,7 +178,7 @@ export default class AnimatedMarkers extends React.Component {
                     })
                 }
             })
-            .catch(error=>console.log(error)) //to catch the errors if any
+            .catch(error => console.log(error)) //to catch the errors if any
     }
 
 
@@ -267,7 +267,6 @@ export default class AnimatedMarkers extends React.Component {
     render() {
         return (
             <View style={styles.container2}>
-                <View style={styles.container}>
 
                     <MapView
                         style={styles.map}
@@ -295,8 +294,30 @@ export default class AnimatedMarkers extends React.Component {
                         </TouchableOpacity>
                     </View>
                     {/*<Button title={"test"} onPress={ }/>*/}
+
+                <View style={styles.buttonContainer}>
+
+                    <Button
+                        style={styles.buttonContainer}
+                        onPress={() => {
+                            // this.recordEnd();
+                        }}                    // onPress={this._onPressButton}
+                        title="사진 업로드"
+                        color="#2ba104"
+                    />
                 </View>
-                
+
+                <View style={styles.buttonContainer}>
+
+                    <Button
+                        style={styles.buttonContainer}
+                        onPress={() => {
+                            this.props.navigation.navigate('RecordEnd',{tripNo:this.getTripNoFromHome()});
+                        }}                    // onPress={this._onPressButton}
+                        title="일지 종료"
+                        color="#2b3ef2"
+                    />
+                </View>
             </View>
         );
     }
