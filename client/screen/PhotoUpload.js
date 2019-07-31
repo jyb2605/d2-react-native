@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
-import { StyleSheet, Text, View, PixelRatio, TouchableOpacity, Image, TextInput, Alert } from 'react-native';
+import {StyleSheet, Text, View, PixelRatio, TouchableOpacity, Image, TextInput, Alert} from 'react-native';
 
 import ImagePicker from 'react-native-image-picker';
 
 import RNFetchBlob from 'rn-fetch-blob';
+import {getAccessToken, sharedPreferences} from "../App";
 
 export default class Project extends Component {
 
@@ -38,15 +39,12 @@ export default class Project extends Component {
 
             if (response.didCancel) {
                 console.log('User cancelled photo picker');
-            }
-            else if (response.error) {
+            } else if (response.error) {
                 console.log('ImagePicker Error: ', response.error);
-            }
-            else if (response.customButton) {
+            } else if (response.customButton) {
                 console.log('User tapped custom button: ', response.customButton);
-            }
-            else {
-                let source = { uri: response.uri };
+            } else {
+                let source = {uri: response.uri};
 
                 this.setState({
 
@@ -64,8 +62,8 @@ export default class Project extends Component {
             'authorization': 'AAAAN5Qk0GPDLYODStkLwVLfFuVXaXTjMv6rpRoJYmVsS/l8mo8iJ4z/wt6bEe7S1AzeaQtUXblUPjwkZHDLQAST7QI=',
             'Content-Type': 'multipart/form-data',
         }, [
-            { name: 'image', filename: 'image.png', type: 'image/png', data: this.state.data },
-            { name: 'image_tag', data: this.state.Image_TAG }
+            {name: 'image', filename: 'image.png', type: 'image/png', data: this.state.data},
+            {name: 'image_tag', data: this.state.Image_TAG}
         ]).then((resp) => {
 
             var tempMSG = resp.data;
@@ -80,16 +78,75 @@ export default class Project extends Component {
 
     }
 
+    postImage(accessToken, image) {
+        const postLocationAPI = 'http://101.101.160.246:3000/trips/image';
+        const upload = fetch(postLocationAPI, {
+            method: 'POST',
+            headers: {
+                // Accept: 'application/json',
+                'Content-Type': 'multipart/form-data',
+                'Authorization': accessToken
+            },
+            body: JSON.stringify({
+                'file': image
+            })
+        });
+        upload.then(response => response.json())
+            .then((responseJson) => {
+                if (responseJson.code === 200) {
+                    console.log("Code : 200");
+
+                } else if (responseJson.code === 300) {
+                    console.log("Code : 300");
+                    sharedPreferences.getString("refreshToken", (result) => {
+                        getAccessToken(result);
+                        sharedPreferences.getString("accessToken", (result) => {
+                            this.postImage(result);
+                        })
+                    })
+                }
+            })
+            .catch(error => console.log(error)) //to catch the errors if any
+    }
+
+    upload = (url, data) => {
+        let options = {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            method: 'POST'
+        };
+
+        options.body = new FormData();
+        for (let key in data) {
+            options.body.append(key, data[key]);
+        }
+
+        // console.log(url)
+
+        return fetch(url, options)
+            .then(response => response.json())
+            .then(responseJson => {
+                    //You put some checks here
+                    console.log(responseJson)
+                    return responseJson;
+                });
+
+
+    }
+
     render() {
         return (
             <View style={styles.container}>
 
-                <TouchableOpacity onPress={this.selectPhotoTapped.bind(this)}>
+                <TouchableOpacity onPress={() => {
+                    this.selectPhotoTapped();
+                }}>
 
                     <View style={styles.ImageContainer}>
 
                         {this.state.ImageSource === null ? <Text>Select a Photo</Text> :
-                            <Image style={styles.ImageContainer} source={this.state.ImageSource} />
+                            <Image style={styles.ImageContainer} source={this.state.ImageSource}/>
                         }
 
                     </View>
@@ -101,7 +158,7 @@ export default class Project extends Component {
 
                     placeholder="Enter Image Name "
 
-                    onChangeText={data => this.setState({ Image_TAG: data })}
+                    onChangeText={data => this.setState({Image_TAG: data})}
 
                     underlineColorAndroid='transparent'
 
@@ -109,7 +166,18 @@ export default class Project extends Component {
                 />
 
 
-                <TouchableOpacity onPress={this.uploadImageToServer} activeOpacity={0.6} style={styles.button} >
+                {/*<TouchableOpacity onPress={*/}
+                {/*    sharedPreferences.getString("accessToken", (result) => {*/}
+                {/*        console.log("dddd")*/}
+                {/*    this.postImage(result, this.state.ImageSource);*/}
+                {/*})*/}
+                {/*} activeOpacity={0.6} style={styles.button}>*/}
+                <TouchableOpacity onPress={ ()=>{this.upload('http://101.101.160.246:3000/trips/image', {
+                    file: this.state.ImageSource
+                }).then(r => {
+                    //do something with `r`
+                });}}
+                                  activeOpacity={0.6} style={styles.button}>
 
                     <Text style={styles.TextStyle}> UPLOAD IMAGE TO SERVER </Text>
 

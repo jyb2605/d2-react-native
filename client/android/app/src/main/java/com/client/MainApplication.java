@@ -11,6 +11,8 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.react.ReactApplication;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
+//import in.sriraman.sharedpreferences.RNSharedPreferencesReactPackage;
+import com.makemytrip.sharedpref.RNSharedPreferencesPackage;
 import com.dooboolab.naverlogin.RNNaverLoginPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 import com.ocetnik.timer.BackgroundTimerPackage;
@@ -38,11 +40,13 @@ public class MainApplication extends Application implements ReactApplication {
               new MainReactPackage(),
             new RNFetchBlobPackage(),
             new ImagePickerPackage(),
+//            new RNSharedPreferencesReactPackage(),
             new RNCWebViewPackage(),
             new BackgroundTimerPackage(),
             new RNGestureHandlerPackage(),
             new GeolocationPackage(),
             new RNNaverLoginPackage(),
+              new RNSharedPreferencesPackage(),
               new MapsPackage()
       );
     }

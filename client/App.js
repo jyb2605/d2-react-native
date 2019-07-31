@@ -9,13 +9,38 @@ import WebScreen from "./screen/Web";
 import RecordEndScreem from "./screen/RecordEnd";
 import TestScreem from "./screen/PhotoUpload";
 
+import RNSharedPreferences from 'react-native-android-shared-preferences';
 
 navigator.geolocation = require('@react-native-community/geolocation');
+
+export var sharedPreferences = RNSharedPreferences.getSharedPreferences("userInfo");
+
+export function getAccessToken(refreshToken) {
+    var loginCallBackAPI = 'http://101.101.160.246:3000/users/refresh?refresh_token=' + refreshToken;
+
+    var getToken = fetch(loginCallBackAPI, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    getToken.then(response => response.json())
+        .then((responseJson) => {
+            var accessToken = responseJson.access_token;
+            var newRefreshToken = responseJson.refresh_token;
+            sharedPreferences.putString("accessToken", accessToken, (result) => {
+                console.log("accessToken: " + result);
+            });
+            sharedPreferences.putString("refreshToken", newRefreshToken, (result) => {
+                console.log("refreshToken: " + result);
+            });
+        })
+}
 
 
 const AppNavigator = createStackNavigator({
         Splash: {
-            screen: TestScreem
+            screen: SplashScreen
         },
         RecordEnd: {
             screen: RecordEndScreem

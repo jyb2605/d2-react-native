@@ -3,8 +3,9 @@ import {AppRegistry, Image, View, StyleSheet, TouchableOpacity, Linking} from 'r
 import {WebView} from 'react-native-webview';
 import {Alert } from 'react-native';
 
-import {StackActions, NavigationActions} from 'react-navigation';
-
+import { sharedPreferences } from "../App";
+import RNSharedPreferences from "react-native-android-shared-preferences";
+// export var sharedPreferences = RNSharedPreferences.getSharedPreferences("userInfo");
 
 const stylesLogin = StyleSheet.create({
     container: {
@@ -14,15 +15,13 @@ const stylesLogin = StyleSheet.create({
 });
 
 export default class MyWeb extends Component {
-
     state = {
         code: 0,
         message: ""
     }
     webViewEnd = async (event) => {
-        console.log(event.nativeEvent.data);
+
         const result = JSON.parse(event.nativeEvent.data);
-        console.log(result.code);
         // Alert.alert("data = ", result);
         if (result.code === 200) {
             // console.log('!');
@@ -33,11 +32,22 @@ export default class MyWeb extends Component {
                 refresh_token: result.refresh_token,
                 // profile:profileURL
             }
+            console.log(data.access_token);
+            sharedPreferences.putString("accessToken", data.access_token, (result) => {
+                console.log("accessToken: " + result);
+            });
+            sharedPreferences.putString("refreshToken", data.refresh_token, (result) => {
+                console.log("refreshToken: " + result);
+            })
+
             //여기서 토큰저장 필요
             //저장 후 바로 화면전환
-            this.props.navigation.navigate('Home',)
+            // Alert.alert('AAAAAAAA');
+            this.props.navigation.navigate('Home')
+            // console.log("Ddddddd");
             // Alert.alert("data = " + JSON.stringify(data));
-        } else {
+        }
+        else {
             //실패
             this.props.navigation.navigate('Home',)
             // this.props.navigation.goBack();
@@ -48,13 +58,12 @@ export default class MyWeb extends Component {
     render() {
         const {navigation} = this.props;
         const url = navigation.getParam('url', 'https://www.naver.com');
-        console.log(url);
+        // console.log(url);
         return (
             <WebView
                 source={{uri: url}}
                 onMessage={(event) => this.webViewEnd(event)}
                 // onMessage={(event) => Alert.alert(event.nativeEvent.data)}
-
             />
 
         );

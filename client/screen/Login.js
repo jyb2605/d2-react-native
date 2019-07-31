@@ -41,8 +41,7 @@ export default class Login extends Component {
     render() {
         return (
             <View style={stylesLogin.container}>
-                <TouchableOpacity onPress={ ()=>{
-                    this.naverLogin(); }}>
+                <TouchableOpacity onPress={ ()=>{this.naverLogin(); }}>
                     <Image
                         style={{height:'100%',width:'100%',resizeMode:'contain'}}
                         source={require('./images/login.png')}/>

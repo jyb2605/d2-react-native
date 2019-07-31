@@ -41,20 +41,13 @@ async function routes (fastify, options) {
          if (!error && response.statusCode == 200) {
            body = JSON.parse(body)
 
-           result.code = response.statusCode
-           result.token_type = body.token_type
-           result.access_token = body.access_token
-           result.refresh_token  = body.refresh_token
-
-           res.header('content-type', 'application/json').code(200).send(result)
-
            var getEmail = {
                url: "https://openapi.naver.com/v1/nid/me",
                headers: {'Authorization': result.token_type + ' ' + result.access_token}
             };
 
-           request.get(getEmail, function (error, res, body) {
-             if (!error && res.statusCode == 200) {
+           request.get(getEmail, function (error, response, body) {
+             if (!error && response.statusCode == 200) {
                body = JSON.parse(body)
                email = body.response.email
 
@@ -66,20 +59,26 @@ async function routes (fastify, options) {
                       // 회원가입
                         connection.query("INSERT INTO users(email) VALUES(\'" + email + "\')", function (err, result){})
                     }
+
+                    result.code = response.statusCode
+                    result.token_type = body.token_type
+                    result.access_token = body.access_token
+                    result.refresh_token  = body.refresh_token
+
+                    res.header('content-type', 'application/json').code(200).send(result)
                })
 
              } else {
-               result.code = res.statusCode
-               console.log('error = ' + res.statusCode);
-               res.send(res.statusCode)
+               result.code = 300
+               result.message = "토큰 인증 실패"
+               res.header('content-type', 'application/json').code(300).send(result)
              }
            });//end getEmail
 
          } else {
-           result.code = response.statusCode
-
-           res.status(response.statusCode).end(result);
-           console.log('error = ' + response.statusCode);
+             result.code = 300
+             result.message = "토큰 인증 실패"
+             res.header('content-type', 'application/json').code(300).send(result)
          }
        });//end requestToken
    });
