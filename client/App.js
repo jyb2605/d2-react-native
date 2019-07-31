@@ -14,6 +14,7 @@ import MapScreen from "./screen/Map";
 import HomeScreen from "./screen/Home";
 import SplashScreen from "./screen/Splash";
 import WebScreen from "./screen/Web";
+import MapDetailScreen from  "./screen/MapDetail";
 import RNSharedPreferences from 'react-native-android-shared-preferences';
 
 navigator.geolocation = require('@react-native-community/geolocation');
@@ -46,7 +47,7 @@ export function getAccessToken(refreshToken) {
 
 const AppNavigator = createStackNavigator({
         Splash: {
-            screen: SplashScreen
+            screen: MapDetailScreen
         },
         Home: {
             screen: HomeScreen
