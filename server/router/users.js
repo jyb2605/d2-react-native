@@ -1,7 +1,6 @@
 const key = require('../model/key')
 const db_con = require('../model/db_con')()
 const redirectURI = "http://101.101.160.246:3000/users/callback"
-const fs = require('fs')
 
 async function routes (fastify, options) {
 
@@ -51,6 +50,7 @@ async function routes (fastify, options) {
             result.access_token = body.access_token
             result.refresh_token  = body.refresh_token
 
+            var userNo = 0;
            request.get(getEmail, function (error, response, body) {
              if (!error && response.statusCode == 200) {
                body = JSON.parse(body)
@@ -62,13 +62,24 @@ async function routes (fastify, options) {
                connection.query(stmt, function (err, db_result){
                     if (!db_result[0].exist) {
                       // 회원가입
-                        connection.query("INSERT INTO users(email) VALUES(\'" + email + "\')", function (err, db_result){})
+                        connection.query("INSERT INTO users(email) VALUES(\'" + email + "\')", function (err, db_result){
+                          connection.query("SELECT no FROM users WHERE email = \'" + email + "\';", function (err, db_result){
+                              result.userNo = db_result[0].no
+                              result.code = response.statusCode
+
+                              script = '<script> var result = ' + JSON.stringify(result) + '; window.ReactNativeWebView.postMessage(JSON.stringify(result));</script>';
+                              res.header('content-type', 'text/html').code(200).send(script)
+                          })
+                        })
+                    }else{
+                        connection.query("SELECT no FROM users WHERE email = \'" + email + "\';" , function (err, db_result){
+                            result.userNo = db_result[0].no
+                            result.code = response.statusCode
+
+                            script = '<script> var result = ' + JSON.stringify(result) + '; window.ReactNativeWebView.postMessage(JSON.stringify(result));</script>';
+                            res.header('content-type', 'text/html').code(200).send(script)
+                        })
                     }
-
-                    result.code = response.statusCode
-
-                    script = '<script> var result = ' + JSON.stringify(result) + '; window.ReactNativeWebView.postMessage(JSON.stringify(result));</script>';
-                    res.header('content-type', 'text/html').code(200).send(script)
 
 
                })
