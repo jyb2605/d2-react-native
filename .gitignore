@@ -95,6 +95,9 @@ typings/
 server/model/key.js
 server/model/db_info.js
 
+#resource file
+server/uploads/*
+
 ##############################################
 # react-native gitignore template                 #
 ##############################################
