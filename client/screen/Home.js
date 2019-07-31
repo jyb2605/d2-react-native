@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 
 import {FloatingAction} from "react-native-floating-action";
+import RNSharedPreferences from 'react-native-android-shared-preferences';
+import {getAccessToken, sharedPreferences} from "../App";
 
 
 
@@ -77,6 +79,10 @@ export default class HomeScreen extends React.Component {
 
 
     state = {
+        code: 0,
+        message: "",
+        accessToken: "",
+        refreshToken: "",
         data: [],
         page: 1 // here
 
@@ -112,6 +118,18 @@ export default class HomeScreen extends React.Component {
         this._getData();
     }
 
+    startRecord = () => {
+
+        sharedPreferences.getString("refreshToken", (result) => {
+            getAccessToken(result);
+        })
+
+        sharedPreferences.getString("accessToken", (result) => {
+            console.log(result);
+        })
+        // console.log(this.state.accessToken);
+        this.props.navigation.navigate('Map');
+    }
 
 
     render() {
@@ -150,7 +168,7 @@ export default class HomeScreen extends React.Component {
                 <FloatingAction
                     actions={actions}
                     onPressItem={name => {
-                        this.props.navigation.navigate('Map');
+                        this.startRecord()
                         // console.log(`selected button: ${name}`);
                     }}
                 />

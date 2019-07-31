@@ -19,6 +19,7 @@ import haversine from "haversine";
 
 navigator.geolocation = require('@react-native-community/geolocation');
 import BackgroundTimer from 'react-native-background-timer';
+import { getAccessToken, sharedPreferences} from "../App";
 
 const LATITUDE_DELTA = 0.009;
 const LONGITUDE_DELTA = 0.009;
@@ -35,13 +36,13 @@ export async function requestLocationPermission() {
                 'message': 'Example App access to your location '
             }
         )
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            console.log("You can use the location")
-            alert("You can use the location");
-        } else {
-            console.log("location permission denied")
-            alert("Location permission denied");
-        }
+        // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        //     console.log("You can use the location")
+        //     alert("You can use the location");
+        // } else {
+        //     console.log("location permission denied")
+        //     alert("Location permission denied");
+        // }
     } catch (err) {
         console.warn(err)
     }
@@ -68,6 +69,11 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
         marginTop: 20
+    },
+    mapButtonContainer: {
+        flexDirection: "row",
+        marginVertical: 20,
+        backgroundColor: "transparent"
     },
     searchText: {
         marginLeft: 20,
@@ -117,12 +123,12 @@ var markers = [
         subtitle: '1234 Foo Drive'
     }
 ];
-
 export default class AnimatedMarkers extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            tripNo: 0,
             latitude: LATITUDE,
             longitude: LONGITUDE,
             routeCoordinates: [],
@@ -136,20 +142,88 @@ export default class AnimatedMarkers extends React.Component {
             })
         };
     }
+    setTripNo = () => {
+        sharedPreferences.getString("tripNo", (result) => {
+            this.setState({
+                tripNo: Number(result)
+            })
+        });
+        sharedPreferences.putString("tripNo", String(this.state.tripNo + 1), (result) => {
+            console.log(result);
+        });
 
-
-    componentWillMount() {
-        const intervalId = BackgroundTimer.setInterval(() => {
-            this.tick();
-        }, 3000);
     }
 
-    tick() {
-        console.log('tic 2');
+
+    postLocationInfo = (latitude, longitude, accessToken) => {
+        const postLocationAPI = 'http://101.101.160.246:3000/map/location';
+        sharedPreferences.getString("tripNo", (result) => {
+            this.setState({
+                tripNo: Number(result)
+            })
+            console.log(this.state.tripNo);
+        });
+        const postTripRecord = fetch(postLocationAPI, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': accessToken
+            },
+            body: JSON.stringify({
+                'tripNo': this.state.tripNo,
+                'latitude': latitude,
+                'longitude': longitude
+            })
+        });
+        // console.log("success");
+        postTripRecord.then(response => response.json())
+            .then((responseJson) => {
+                // this.setState({
+                //     loading: false,
+                //     dataSource: responseJson
+                // })
+                // console.log(responseJson.api_url);
+                if (responseJson.code == 200) {
+                    console.log("Code : 200");
+                } else if (responseJson.code == 300) {
+                    console.log("Code : 300");
+                    sharedPreferences.getString("refreshToken", (result) => {
+                        getAccessToken(result);
+                        sharedPreferences.getString("accessToken", (result) => {
+                            this.postLocationInfo(this.state.latitude, this.state.longitude, result);
+                        })
+                    })
+                }
+            })
+            .catch(error=>console.log(error)) //to catch the errors if any
+        // return url
+        // console.log(1);
     }
+
+
+    // componentDidMount() {
+    //     this.setTripNo();
+    //     // sharedPreferences.getString("accessToken", (result) => {
+    //     //     this.postLocationInfo(this.state.latitude, this.state.longitude, result);
+    //     // })
+    //     const interverID = BackgroundTimer.setInterval(() => {
+    //         this.tick();
+    //         sharedPreferences.getString("accessToken", (result) => {
+    //             this.postLocationInfo(this.state.latitude, this.state.longitude, result);
+    //         })
+    //         this.componentDidMountGPS();
+    //     }, 6000);
+    //     // BackgroundTimer.clearInterval(intervalId);
+    // }
+
+    // tick() {
+    //     console.log('tic 2');
+    // }
 
 
     componentDidMount() {
+        this.setTripNo();
         requestLocationPermission()
         const {coordinate} = this.state;
 
@@ -174,6 +248,9 @@ export default class AnimatedMarkers extends React.Component {
                     coordinate.timing(newCoordinate).start();
                 }
 
+                sharedPreferences.getString("accessToken", (result) => {
+                    this.postLocationInfo(this.state.latitude, this.state.longitude, result);
+                })
                 this.setState({
                     latitude,
                     longitude,
@@ -211,6 +288,7 @@ export default class AnimatedMarkers extends React.Component {
 
 
     render() {
+
         return (
             <View style={styles.container}>
 
@@ -232,13 +310,14 @@ export default class AnimatedMarkers extends React.Component {
                         coordinate={this.state.coordinate}
                     />
                 </MapView>
-                <View style={styles.buttonContainer}>
+                <View style={styles.mapButtonContainer}>
                     <TouchableOpacity style={[styles.bubble, styles.button]}>
                         <Text style={styles.bottomBarContent}>
                             {parseFloat(this.state.distanceTravelled).toFixed(2)} km
                         </Text>
                     </TouchableOpacity>
                 </View>
+                {/*<Button title={"test"} onPress={ }/>*/}
             </View>
         );
     }
