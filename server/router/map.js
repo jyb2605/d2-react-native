@@ -9,6 +9,13 @@ async function routes (fastify, options) {
     var result = new Object()
 
     var tripNo = req.body.tripNo
+    if(tripNo == undefined){
+        result.code = 301
+        result.message = "유효하지 않은 여행 번호"
+
+        res.header('content-type', 'application/json').code(301).send(result)
+    }
+
     var latitude = req.body.latitude
     var longitude = req.body.longitude
 
@@ -67,7 +74,7 @@ async function routes (fastify, options) {
 
     var check = {
         url: "https://openapi.naver.com/v1/nid/verify",
-        headers: {'Authorization': authorization }
+        headers: {'Authorization': "Bearer " + authorization }
      };
 
     request.get(check, function (error, response, body) {
