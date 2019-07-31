@@ -126,9 +126,7 @@ var markers = [
 export default class AnimatedMarkers extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
-            tripNo: 0,
             latitude: LATITUDE,
             longitude: LONGITUDE,
             routeCoordinates: [],
@@ -142,27 +140,16 @@ export default class AnimatedMarkers extends React.Component {
             })
         };
     }
-    setTripNo = () => {
-        sharedPreferences.getString("tripNo", (result) => {
-            this.setState({
-                tripNo: Number(result)
-            })
-        });
-        sharedPreferences.putString("tripNo", String(this.state.tripNo + 1), (result) => {
-            console.log(result);
-        });
 
+    getTripNoFromHome = () => {
+        const {navigation} = this.props;
+        const tripNo = navigation.getParam('tripNo', '0');
+        console.log(tripNo);
+        return tripNo;
     }
 
-
-    postLocationInfo = (latitude, longitude, accessToken) => {
+    postLocationInfo = (latitude, longitude, accessToken, tripNo) => {
         const postLocationAPI = 'http://101.101.160.246:3000/map/location';
-        sharedPreferences.getString("tripNo", (result) => {
-            this.setState({
-                tripNo: Number(result)
-            })
-            console.log(this.state.tripNo);
-        });
         const postTripRecord = fetch(postLocationAPI, {
             method: 'POST',
             headers: {
@@ -171,7 +158,7 @@ export default class AnimatedMarkers extends React.Component {
                 'Authorization': accessToken
             },
             body: JSON.stringify({
-                'tripNo': this.state.tripNo,
+                'tripNo': tripNo,
                 'latitude': latitude,
                 'longitude': longitude
             })
@@ -179,11 +166,6 @@ export default class AnimatedMarkers extends React.Component {
         // console.log("success");
         postTripRecord.then(response => response.json())
             .then((responseJson) => {
-                // this.setState({
-                //     loading: false,
-                //     dataSource: responseJson
-                // })
-                // console.log(responseJson.api_url);
                 if (responseJson.code == 200) {
                     console.log("Code : 200");
                 } else if (responseJson.code == 300) {
@@ -191,14 +173,12 @@ export default class AnimatedMarkers extends React.Component {
                     sharedPreferences.getString("refreshToken", (result) => {
                         getAccessToken(result);
                         sharedPreferences.getString("accessToken", (result) => {
-                            this.postLocationInfo(this.state.latitude, this.state.longitude, result);
+                            this.postLocationInfo(this.state.latitude, this.state.longitude, result, tripNo);
                         })
                     })
                 }
             })
             .catch(error=>console.log(error)) //to catch the errors if any
-        // return url
-        // console.log(1);
     }
 
 
@@ -223,10 +203,8 @@ export default class AnimatedMarkers extends React.Component {
 
 
     componentDidMount() {
-        this.setTripNo();
         requestLocationPermission()
         const {coordinate} = this.state;
-
         this.watchID = navigator.geolocation.watchPosition(
             position => {
                 const {routeCoordinates, distanceTravelled} = this.state;
@@ -236,7 +214,10 @@ export default class AnimatedMarkers extends React.Component {
                     latitude,
                     longitude
                 };
-                console.log(position.coords);
+                sharedPreferences.getString("accessToken", (result) => {
+                    this.postLocationInfo(this.state.latitude, this.state.longitude, result, this.getTripNoFromHome());
+                })
+                // console.log(position.coords);
                 if (Platform.OS === "android") {
                     if (this.marker) {
                         this.marker._component.animateMarkerToCoordinate(
@@ -247,10 +228,6 @@ export default class AnimatedMarkers extends React.Component {
                 } else {
                     coordinate.timing(newCoordinate).start();
                 }
-
-                sharedPreferences.getString("accessToken", (result) => {
-                    this.postLocationInfo(this.state.latitude, this.state.longitude, result);
-                })
                 this.setState({
                     latitude,
                     longitude,
@@ -288,36 +265,38 @@ export default class AnimatedMarkers extends React.Component {
 
 
     render() {
-
         return (
-            <View style={styles.container}>
+            <View style={styles.container2}>
+                <View style={styles.container}>
 
-                <MapView
-                    style={styles.map}
-                    provider={PROVIDER_GOOGLE}
-                    showUserLocation
-                    followUserLocation
-                    loadingEnabled
-                    region={this.getMapRegion()}
-                >
-                    <Polyline coordinates={this.state.routeCoordinates}
-                              strokeWidth={5}
-                              strokeColor={'#3EAF0E'}/>
-                    <Marker.Animated
-                        ref={marker => {
-                            this.marker = marker;
-                        }}
-                        coordinate={this.state.coordinate}
-                    />
-                </MapView>
-                <View style={styles.mapButtonContainer}>
-                    <TouchableOpacity style={[styles.bubble, styles.button]}>
-                        <Text style={styles.bottomBarContent}>
-                            {parseFloat(this.state.distanceTravelled).toFixed(2)} km
-                        </Text>
-                    </TouchableOpacity>
+                    <MapView
+                        style={styles.map}
+                        provider={PROVIDER_GOOGLE}
+                        showUserLocation
+                        followUserLocation
+                        loadingEnabled
+                        region={this.getMapRegion()}
+                    >
+                        <Polyline coordinates={this.state.routeCoordinates}
+                                  strokeWidth={5}
+                                  strokeColor={'#3EAF0E'}/>
+                        <Marker.Animated
+                            ref={marker => {
+                                this.marker = marker;
+                            }}
+                            coordinate={this.state.coordinate}
+                        />
+                    </MapView>
+                    <View style={styles.mapButtonContainer}>
+                        <TouchableOpacity style={[styles.bubble, styles.button]}>
+                            <Text style={styles.bottomBarContent}>
+                                {parseFloat(this.state.distanceTravelled).toFixed(2)} km
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    {/*<Button title={"test"} onPress={ }/>*/}
                 </View>
-                {/*<Button title={"test"} onPress={ }/>*/}
+                
             </View>
         );
     }
