@@ -9,6 +9,7 @@ import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
 import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.react.ReactApplication;
+import com.makemytrip.sharedpref.RNSharedPreferencesPackage;
 import com.dooboolab.naverlogin.RNNaverLoginPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 import com.ocetnik.timer.BackgroundTimerPackage;
@@ -34,6 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
               new MainReactPackage(),
+            new RNSharedPreferencesPackage(),
             new RNCWebViewPackage(),
             new BackgroundTimerPackage(),
             new RNGestureHandlerPackage(),
