@@ -19,6 +19,12 @@ export default class MyWeb extends Component {
         code: 0,
         message: ""
     }
+    getUrlFromLogin = () => {
+        const {navigation} = this.props;
+        const url = navigation.getParam('url', 'https://www.naver.com');
+        console.log(url);
+        return url;
+    }
     webViewEnd = async (event) => {
 
         const result = JSON.parse(event.nativeEvent.data);
@@ -30,6 +36,7 @@ export default class MyWeb extends Component {
             const data = {
                 access_token: result.access_token,
                 refresh_token: result.refresh_token,
+                userNo: result.userNo
                 // profile:profileURL
             }
             console.log(data.access_token);
@@ -38,7 +45,10 @@ export default class MyWeb extends Component {
             });
             sharedPreferences.putString("refreshToken", data.refresh_token, (result) => {
                 console.log("refreshToken: " + result);
-            })
+            });
+            sharedPreferences.putString("userNo", String(data.userNo), (result) => {
+                // console.log()
+            });
 
             //여기서 토큰저장 필요
             //저장 후 바로 화면전환
@@ -56,12 +66,11 @@ export default class MyWeb extends Component {
     }
 
     render() {
-        const {navigation} = this.props;
-        const url = navigation.getParam('url', 'https://www.naver.com');
+
         // console.log(url);
         return (
             <WebView
-                source={{uri: url}}
+                source={{uri: this.getUrlFromLogin()}}
                 onMessage={(event) => this.webViewEnd(event)}
                 // onMessage={(event) => Alert.alert(event.nativeEvent.data)}
             />

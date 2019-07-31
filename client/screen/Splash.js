@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'orange'
+        backgroundColor: 'green'
     },
     textStyles: {
         color: 'white',
@@ -30,7 +30,7 @@ export default class Splash extends React.Component {
         return (
             <View style={styles.viewStyles}>
                 <Text style={styles.textStyles}>
-                    Blitz Reading
+                    Trip Recording
                 </Text>
             </View>
         );
